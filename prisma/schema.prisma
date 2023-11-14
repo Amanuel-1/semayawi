@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -22,7 +22,9 @@ model Post {
 
     createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
+    subSemayawiId String
 
+    subSemayawi SubSemayawi @relation(fields: [subSemayawiId],references: [id],onDelete: Cascade,onUpdate: Cascade)
     @@index([name])
 }
 
@@ -62,6 +64,11 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    profile Profile?
+    bookmarks Bookmarks[]
+    groups Group[]
+
+    
 }
 
 model VerificationToken {
@@ -71,3 +78,59 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+model Profile {
+    id String @id @default(cuid())
+    userId String @unique
+    preferences Json
+
+    user  User  @relation(fields: [userId],references: [id])
+
+
+}
+
+
+
+model Bookmarks {
+    id String @id @default(cuid())
+    verseId  String // it would be of the format [book-chapter-verse]
+    userId  String
+
+    notes String
+
+    user User @relation(fields: [userId],references: [id],onDelete: Cascade,onUpdate: Cascade)
+
+}
+
+model Group {
+    id String @id @default(cuid())
+    name String
+    description String
+    members User[]
+    
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+
+model SubSemayawi {
+    id String @id @default(cuid())
+    name String
+    description String
+    route String
+    posts Post[]
+
+}
+
+
+
+
+
+// user    favourites-->{
+//                     id
+//                     userId
+//                     location "gen-2-20"
+//                     note:" "
+        
+
+// }
