@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Post {
-    id        Int      @id @default(autoincrement())
+    id        String      @id @default(cuid())
     name      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -23,7 +23,10 @@ model Post {
     createdBy   User   @relation(fields: [createdById], references: [id])
     createdById String
     subSemayawiId String
+    likes Int  @default(0)
+    views Int @default(0)
 
+    comments Comment[]
     subSemayawi SubSemayawi @relation(fields: [subSemayawiId],references: [id],onDelete: Cascade,onUpdate: Cascade)
     @@index([name])
 }
@@ -121,6 +124,20 @@ model SubSemayawi {
     posts Post[]
 
 }
+
+
+model Comment {
+  id              String   @id @default(cuid())
+  postId          String
+  authorId        String
+  parentCommentId String?
+
+  parentComment   Comment? @relation("ChildComments", fields: [parentCommentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  childComments   Comment[] @relation("ChildComments")
+
+  post            Post     @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
 
 
 
